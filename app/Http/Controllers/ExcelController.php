@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ExcelDataMail;
 
 class ExcelController extends Controller
 {
@@ -34,4 +36,22 @@ class ExcelController extends Controller
         return view('process', compact('rowsCount','columnsCount','excelData'));
 
     }
+
+
+    public function sendEmail(Request $request)
+    {
+        $excelData = $request->input('json_data'); // this will be a JSON string from the form
+
+        // decode to array
+        $excelDataArray = json_decode($excelData, true);
+
+        // send email
+        Mail::to('hello@example.com')->send(new ExcelDataMail($excelDataArray));
+
+        return redirect('/upload')
+            ->with('success', 'Email sent successfully!')
+            ->with('excelData', $excelDataArray);
+    }
+
+
 }
